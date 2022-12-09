@@ -14,7 +14,7 @@ P1[(i-1),(j-1)] <- ifelse(sum(all(tree[i, (j+1):99]<tree[i,j]),all(tree[i, (j-1)
 
  392 + length(which(P==1))    #ANSWER perimeter value number plus all ones (visible trees not perimeter) #392 == 99*2+97*2
  
- #PART 2:
+ #PART 2: SCENIC SCORE CALCULATIONS
  P2 <- matrix(0, ncol=97, nrow=97)   
  for(i in 2:98) # do not examine the perimeter 
    for(j in 2:98)
