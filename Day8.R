@@ -12,15 +12,15 @@ for(i in 2:98) # do not examine the perimeter
   for(j in 2:98)
 P1[(i-1),(j-1)] <- ifelse(sum(all(tree[i, (j+1):99]<tree[i,j]),all(tree[i, (j-1):1]<tree[i,j]),all(tree[(i+1):99, j]<tree[i,j]), all(tree[(i-1):1, j]<tree[i,j]))!=0,1,0)# 1 means visible, 0 means not visible 
 
- 392 + length(which(P==1))    #ANSWER perimeter value number plus all ones (visible trees not perimeter)
+ 392 + length(which(P==1))    #ANSWER perimeter value number plus all ones (visible trees not perimeter) #392 == 99*2+97*2
  
  #PART 2:
  P2 <- matrix(0, ncol=97, nrow=97)   
  for(i in 2:98) # do not examine the perimeter 
    for(j in 2:98)
-     P2[(i-1),(j-1)] <- prod(ifelse(length(which(tree[i, (j+1):99]>=tree[i,j])) ==0, (99-j), min(which(tree[i, (j+1):99]>=tree[i,j]))),
-                             ifelse(length(which(tree[i, (j-1):1]>=tree[i,j])) ==0, (j-1), min(which(tree[i, (j-1):1]>=tree[i,j]))),
-                             ifelse(length(which(tree[(i+1):99, j]>=tree[i,j])) ==0, (99-i),min(which(tree[(i+1):99, j]>=tree[i,j]))),
+     P2[(i-1),(j-1)] <- prod(ifelse(length(which(tree[i, (j+1):99]>=tree[i,j])) ==0, (99-j), min(which(tree[i, (j+1):99]>=tree[i,j]))),  # if visible, (length==0) then
+                             ifelse(length(which(tree[i, (j-1):1]>=tree[i,j])) ==0, (j-1), min(which(tree[i, (j-1):1]>=tree[i,j]))),      #choose length until edge else
+                             ifelse(length(which(tree[(i+1):99, j]>=tree[i,j])) ==0, (99-i),min(which(tree[(i+1):99, j]>=tree[i,j]))),   # length until tree taller is found
                              ifelse(length(which(tree[(i-1):1, j]>=tree[i,j])) ==0, (i-1), min(which(tree[(i-1):1, j]>=tree[i,j]))))
  
  max(P2)   #ANSWER
