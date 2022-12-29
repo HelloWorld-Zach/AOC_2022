@@ -1,0 +1,219 @@
+#ADVENT OF CODE: DAY 1 
+#PART 1:
+library(readxl)
+library(tidyverse)
+Day1 <- read_excel("C:/Users/15517/Downloads/Day1.xlsx", col_names = FALSE)
+Day1 <- as.vector(Day1$...1)                     
+Day1 <- Day1 %>% replace_na(0)
+beg <- Sys.time()
+g <- c(sum(Day1[1:which(Day1==0)[1]]))
+for(i in 2:(length(which(Day1==0))-1))
+  g[i] <- sum(Day1[which(Day1==0)[i]:which(Day1==0)[i+1]])
+g <- append(g, sum(Day1[(max(which(Day1==0))):length(Day1)]))
+max(g)                                                                 #ANSWER
+end <- Sys.time()
+print(end-beg)                                                         #EXECUTION TIME
+#PART 2: 
+sum(sort(g, decreasing=T)[1:3]) #ANSWER
+#COMMENTARY:
+#PRETTY SIMPLE FOR LOOP HERE BUT HAVE TO INPUT FIRST AND LAST VALUES OF SUM VECTOR SEPARATELY SO NOT AS EFFICIENT 
+#THIS IS EASIER IN EXCEL 
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#ADVENT OF CODE: DAY 2
+#PART 1:
+library(readxl)
+library(tidyverse)
+Day2 <- read_excel("C:/Users/15517/Downloads/Day2.xlsx", col_names = FALSE)
+Day2 <- data.frame(Opponent = factor(Day2$...1), You = factor(Day2$...2))
+Day2 <- Day2 %>% mutate(points = case_when(Opponent == "A" & You == "X" ~ 4, Opponent == "A" & You == "Y" ~ 8, Opponent == "A" & You == "Z" ~ 3,
+                                           Opponent == "B" & You == "X" ~ 1, Opponent == "B" & You == "Y" ~ 5, Opponent == "B" & You == "Z" ~ 9,                                                               
+                                           Opponent == "C" & You == "X" ~ 7, Opponent == "C" & You == "Y" ~ 2, Opponent == "C" & You == "Z" ~ 6))
+sum(Day2$points)   #ANSWER   
+#PART 2:
+Day2 <- Day2 %>% mutate(points_2 = case_when(Opponent == "A" & You == "X" ~ 3 , Opponent == "A" & You == "Y" ~ 4 , Opponent == "A" & You == "Z" ~ 8,
+                                             Opponent == "B" & You == "X" ~ 1, Opponent == "B" & You == "Y" ~ 5, Opponent == "B" & You == "Z" ~ 9,                                                               
+                                             Opponent == "C" & You == "X" ~ 2, Opponent == "C" & You == "Y" ~ 6 , Opponent == "C" & You == "Z" ~ 7))
+
+sum(Day2$points_2) # ANSWER 
+#COMMENTARY:
+#fairly straightforward, nice use of case whens, used excel to parse initially 
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#APPROACH #2
+library(readxl)
+library(tidyverse)
+Day2 <- read_excel("C:/Users/15517/Downloads/Day2.xlsx", col_names = FALSE)
+Day2 <- data.frame(Opponent = factor(Day2$...1), You = factor(Day2$...2))
+Day2 <- Day2 %>% mutate(Points_0 = as.numeric(fct_recode(Opponent, "A"= "1", "B" = "2", "C" = "3"))
+                        , Points_Y = as.numeric(fct_recode(You, "X" = "1", "Y" = "2", "C" = "3")))
+Day2 <- Day2 %>% mutate(points  = case_when(Points_0 == Points_Y ~ Points_Y + 3, (Points_Y-Points_0) %in% c(-1,2) ~ Points_Y, (Points_Y-Points_0) %in% c(-2,1) ~ Points_Y + 6))
+sum(Day2$points) # ANSWER 
+#PART 2:
+Day2 <- Day2 %>% mutate(points_2 = case_when(Points_Y == 1 & Points_0 == 1 ~ 3, Points_Y == 1 & Points_0 %in% c(2,3) ~ Points_0 - 1 
+                                             , Points_Y==2 ~ Points_0 + 3, Points_Y == 3  & Points_0 == 3 ~ 7, Points_Y == 3  & Points_0 %in% c(1,2) ~ Points_0 + 7))
+sum(Day2$points_2) # ANSWER 
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#ADVENT OF CODE: DAY 3
+
+#PART 1
+library(readxl)
+library(tidyverse)
+Day3 <- read_excel("C:/Users/15517/Downloads/Day3.xlsx", col_names = FALSE)
+colnames(Day3) <- "Sacks"
+Day3 <- data.frame(Day3)
+Day3 <- Day3 %>% mutate(First = substr(Sacks, 1, 0.5*str_length(Sacks)), Second =  substr(Sacks,(0.5*str_length(Sacks)+1) , str_length(Sacks)))
+Common <- function(x,y){        # function to get all common strings 
+  F <- c()
+  for(i in 1:str_length(x))
+    F[i] <- substr(x, i ,i)
+  S <- c()
+  for(i in 1:str_length(y))
+    S[i] <- substr(y, i ,i)
+  return(reduce(list(F,S), intersect))
+}           
+Int <- data.frame(Letters = _chr(Day3$First, Day3$Second, ~Common(.x,.y)))   # purrr iterative function to apply this function to all sub-sacks and output the list we want
+
+sum(sum(match(Int$Letters[c(which(match(Int$Letters, letters[1:26]) != "NA"))], letters[1:26])), sum(match(Int$Letters[c(which(match(Int$Letters, toupper(letters[1:26])) != "NA"))], toupper(letters[1:26])))) +                      
+  length(Int$Letters[c(which(match(Int$Letters, toupper(letters[1:26])) != "NA"))])*26      # ANSWER -COULD SIMPLIFY THIS A BIT 
+
+Simplified Version : sum(match(Int$Letters, append(letters[1:26], toupper(letters[1:26])))) # I exploit a vector and the match function to return the value associated with the letter as the position
+#PART 2
+Groups <- matrix(Day3$Sacks, ncol=3, nrow=100, byrow=T)
+Common3 <- function(x,y,z){        # function to get all common strings for groups 
+  F <- c()
+  for(i in 1:str_length(x))
+    F[i] <- substr(x, i ,i)
+  S <- c()
+  for(i in 1:str_length(y))
+    S[i] <- substr(y, i ,i)
+  G <- c()
+  for(i in 1:str_length(z))
+    G[i] <- substr(z, i ,i)
+  return(reduce(list(F,S,G), intersect))        #reduce not needed for two arguments but can be generalized easier this way --- see below with 3 arguments
+}           
+C <- c()
+for(i in 1:100)
+  C[i] <- Common3(Groups[i,1],Groups[i,2],Groups[i,3])          # for loop to populate a vector full of matches for each row across the 3 columns of matrix "Groups" code below does this with purrr's map
+
+C <- pmap_chr(list(1:100), ~Common3(Groups[.,1],Groups[.,2],Groups[.,3])) #------------PURR VERSION OF THIS ----- REPLACES THE FOR LOOP#
+
+sum(sum(match(C[c(which(match(C, letters[1:26]) != "NA"))], letters[1:26])), sum(match(C[c(which(match(C, toupper(letters[1:26])) != "NA"))], toupper(letters[1:26])))) +                      
+  length(C[c(which(match(C, toupper(letters[1:26])) != "NA"))])*26         # ANSWER - SIMPLIFIED VERSION BELOW
+
+Simplified Version : sum(match(C, append(letters[1:26], toupper(letters[1:26]))))  # I exploit a vector and the match function to return the value associated with the letter as the position
+
+#COMMENTARY:
+#extremely satisfying to solve, not the best method but it certainly works :D
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#DAY 4:
+#PART 1:
+library(readxl)
+library(tidyverse)
+Day4 <- read_excel("C:/Users/15517/Downloads/Day4.xlsx", col_names = "Full")
+Full <- as.vector(Day4$Full)
+firstlower <- map_dbl(1:1000, ~as.numeric(substr(Full[.],1, (min(unlist(gregexpr("-", Full[.])))-1))))                                       # these four vectors are upper and lower
+firstupper <- map_dbl(1:1000, ~as.numeric(substr(Full[.], (min(unlist(gregexpr("-", Full[.])))+1), ((unlist(gregexpr(",", Full[.])))-1))))   # bounds for each side 
+secondlower <-  map_dbl(1:1000, ~as.numeric(substr(Full[.],((unlist(gregexpr(",", Full[.])))+1), (max((unlist(gregexpr("-", Full[.])))-1)))))
+secondupper <- map_dbl(1:1000, ~ as.numeric(substr(Full[.],(max((unlist(gregexpr("-", Full[.])))+1)),(str_length(Full[.])))))
+
+Day4 <- function(a,b,c,d){                               #function to determine whether one side fully enclosed or not 
+  L <- a:b
+  U <- c:d
+  if(length(intersect(L, U))==min(length(L), length(U)))
+    return(1)
+  else
+    return(0)
+}
+list1 <- list(firstlower,firstupper, secondlower,secondupper)
+sum(pmap_dbl(list(1:1000), ~ Day4(list1[[1]][.],list1[[2]][.] ,list1[[3]][.] ,list1[[4]][.])))     #ANSWER
+
+#PART 2:
+overlap <- function(a,b,c,d){           # function to check if any overlap i.e. if intersection set is not 0 
+  L <- a:b
+  U <- c:d
+  if(length(intersect(U,L)) !=0)
+    return(1)
+  else
+    return(0)
+}
+sum(pmap_dbl(list(1:1000), ~ overlap(list1[[1]][.],list1[[2]][.] ,list1[[3]][.] ,list1[[4]][.]))) # ANSWER
+
+#COMMENTARY: could have done parsing in excel but this was good practice, pretty clean solution 
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Day5:
+#PART 1:
+setwd("C:/Users/15517/Downloads")
+library(tidyverse)
+library(openxlsx)
+Day5 <- read.xlsx("Day5Input.xlsx")
+crate_frame <- matrix(rep("^_^", 56*9),nrow =56 , ncol = 9) # rows is number of total crates , cols is number of stacks 
+
+crate_frame[1:7,1] <- str_split("ZPBQMDN", "")[[1]]         #hard-coding our initial stack arrangement, 1:number of characters in that particular string (aka number of crates)
+crate_frame[1:8,2] <- str_split("VHDMQZLC", "")[[1]]
+crate_frame[1:8,3] <- str_split("GZFVDRHQ", "")[[1]]
+crate_frame[1:5,4] <- str_split("NFDGH", "")[[1]]
+crate_frame[1:3,5] <- str_split("QFN", "")[[1]]
+crate_frame[1:7,6] <- str_split("TBFZVQD", "")[[1]]
+crate_frame[1:8,7] <- str_split("HSVDZTMQ", "")[[1]]
+crate_frame[1:6,8] <- str_split("QNPFGM", "")[[1]]
+crate_frame[1:4,9] <- str_split("MRWB", "")[[1]]
+
+for(i in 1:nrow(Day5)){                                                 
+  num <- Day5$num_c[i]
+  start <- Day5$start[i]
+  dest <- Day5$dest[i]
+  crate_frame[(num+1):56,dest] <-  crate_frame[1:(56 - num),dest]        #shifts crates down an appropriate amount in the destination column
+  crate_frame[1:num,dest] <- rev(crate_frame[1:num,start])               #inserts the reversed order crates in the destination column from the start column 
+  crate_frame[1:(56 - num),start] <- crate_frame[(num+1):56,start]       #moves up the start column so everything is at the top, then we continue to loop through all rows in our excel input
+}
+paste0(crate_frame[1,], collapse = "")               #ANSWER 
+#PART 2:
+for(i in 1:nrow(Day5)){                                                    
+  num <- Day5$num_c[i]
+  start <- Day5$start[i]
+  dest <- Day5$dest[i]
+  crate_frame[(num+1):56,dest] <-  crate_frame[1:(56 - num),dest]          #shifts crates down an appropriate amount in the destination column
+  crate_frame[1:num,dest] <- crate_frame[1:num,start]                      #no reversed order, same code as before
+  crate_frame[1:(56 - num),start] <- crate_frame[(num+1):56,start]         #moves up the start column so everything is at the top, then we continue to loop through all rows in our excel input
+}
+paste0(crate_frame[1,], collapse = "")                #ANSWER 
+#Commentary:
+#For someone who isn't great at programming this wasn't easy but parsing in excel and hand-coding made it a lot easier
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Day6:
+#PART 1:
+library(tidyverse)
+library(openxlsx)
+setwd("C:/Users/15517/Downloads")
+Day6 <- readLines("Day6.txt") #4095 characters in string 
+splitter <- function(x,n){
+  nums <- c()
+  for(i in 1:n)
+    nums[i] <- substr(x,i,i)
+  nums
+}
+g <- splitter(Day6, str_length(Day6))
+m <- rep(0,3)
+for(i in 4:str_length(Day6)){
+  m[i] <- n_distinct(g[i:(i-3)]) 
+  if(m[i]==4)
+    break
+}
+length(m)                       #ANSWER
+#PART 2:
+l <- rep(0,13)
+for(i in 14:str_length(Day6)){
+  l[i] <- n_distinct(g[i:(i-13)])
+  if(l[i]==14)
+    break
+}
+length(l)                       #ANSWER 
+
+#Commentary: Nice and easy, tomorrow should be harder
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
