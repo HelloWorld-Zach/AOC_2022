@@ -1,0 +1,13 @@
+# --- Day 1: Calorie Counting -- 
+
+setwd("C:/Users/15517/Downloads")
+library(tidyverse)
+
+part1 <- tibble(as.double(readLines("2022_d1.txt"))) %>% rename(groups = `as.double(readLines("2022_d1.txt"))`) %>% mutate(index = cumsum(is.na(groups))) %>% na.omit() %>% group_by(index) %>% summarize(count = sum(groups)) %>% top_n(n=1, wt=count) %>% pull(count)
+
+part1 #69,693 
+
+#PART 2:
+part2 <- tibble(as.double(readLines("2022_d1.txt"))) %>% rename(groups = `as.double(readLines("2022_d1.txt"))`) %>% mutate(index = cumsum(is.na(groups))) %>% na.omit() %>% group_by(index) %>% summarize(count = sum(groups)) %>% top_n(n=3, wt=count) %>% pull(count) %>% sum()
+
+part2 #200,945
