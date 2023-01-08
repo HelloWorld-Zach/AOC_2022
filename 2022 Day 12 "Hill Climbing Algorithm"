@@ -1,0 +1,60 @@
+# --- Day 12: Hill Climbing Algorithm ---
+
+library(plot.matrix)
+input <- readLines("2022_d12.txt") #167 col, 41 row
+hillclimb <- array(0, dim = c(41, 167))
+for(i in 1:length(input)){
+  hillclimb[i,] <- match(str_split(input[i], "")[[1]], letters)
+  
+}
+options(scipen = 999)
+end <-  which(is.na(hillclimb))[2] 
+current <- which(is.na(hillclimb))[1]
+pathlengths = array(Inf, dim = c(41,167)) 
+unvisited <- array(1, dim =c(41,167))
+hillclimb[which(is.na(hillclimb))[1]] <- 1
+hillclimb[which(is.na(hillclimb))[1]] <- 26
+pathlengths[21] <- 0 
+
+repeat{
+  current <-  ifelse(length(which(unvisited == 1) != 0), which(pathlengths == min(pathlengths[which(unvisited==1)]) & unvisited==1)[1], which(pathlengths == sort(pathlengths,T)[ min(which(sort(pathlengths, T) != Inf))])[1])
+  right <- ifelse(current %in% 6808:6847, 0, ifelse((hillclimb[current] < (hillclimb[current+41]-1)), 0, current + 41))
+  left <- ifelse(current %in% 1:41, 0, ifelse((hillclimb[current] < (hillclimb[current-41]-1)), 0, current - 41))
+  down <- ifelse(current %in% seq(from = 41, to = 6847, by = 41), 0, ifelse((hillclimb[current] < (hillclimb[current+1]-1)), 0, current+1))
+  up <- ifelse(current %in% seq(from = 1, to = 6807, by = 41), 0, ifelse((hillclimb[current] < (hillclimb[current-1]-1)), 0, current-1))
+  neighbors <- c(down,right, up, left)
+  for(i in 1:length(which(neighbors != 0))){
+    j <- neighbors[which(neighbors != 0)[i]]
+    pathlengths[j] <- min(pathlengths[j] , pathlengths[current] + 1)
+  }
+  unvisited[current] <- 0  
+  if(pathlengths[5966] != Inf) break  
+}
+
+pathlengths[5966] #ANSWER -----> 517 
+
+plot(pathlengths)
+# 6847 MAX
+#PART 2:
+
+#starting node is 5966 break when we populate a node equal to 1 "a"
+unvisited <- array(1, dim =c(41,167))
+pathlengths = array(Inf, dim = c(41,167)) 
+pathlengths[5966] <- 0 
+repeat{
+  current <-  ifelse(length(which(unvisited == 1) != 0), which(pathlengths == min(pathlengths[which(unvisited==1)]) & unvisited==1)[1], which(pathlengths == sort(pathlengths,T)[ min(which(sort(pathlengths, T) != Inf))])[1])
+  right <- ifelse(current %in% 6808:6847, 0, ifelse((hillclimb[current] > (hillclimb[current+41]+1)), 0, current + 41))
+  left <- ifelse(current %in% 1:41, 0, ifelse((hillclimb[current] > (hillclimb[current-41]+1)), 0, current - 41))
+  down <- ifelse(current %in% seq(from = 41, to = 6847, by = 41), 0, ifelse((hillclimb[current] > (hillclimb[current+1]+1)), 0, current+1))
+  up <- ifelse(current %in% seq(from = 1, to = 6807, by = 41), 0, ifelse((hillclimb[current] > (hillclimb[current-1]+1)), 0, current-1))
+  neighbors <- c(down,right, up, left)
+  for(i in 1:length(which(neighbors != 0))){
+    j <- neighbors[which(neighbors != 0)[i]]
+    pathlengths[j] <- min(pathlengths[j] , pathlengths[current] + 1)
+  }
+  unvisited[current] <- 0  
+  print(length(which(pathlengths != Inf)))
+  if(any(pathlengths[which(hillclimb == 1)] != Inf)) break  
+}
+
+min(pathlengths[which(hillclimb == 1)]) # ANSWER ----> 512
